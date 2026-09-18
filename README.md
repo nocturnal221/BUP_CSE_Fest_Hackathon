@@ -274,6 +274,9 @@ BUP CSE FEST Hackathon 2026
 5. Optimization Pipeline:
    POST https://subjects-measurement-gym-thousands.trycloudflare.com/optimize-energy
 
-6. Django Admin Panel:
+6. Live Interactive Frontend Dashboard:
+   https://starring-ground-personal-bali.trycloudflare.com
+
+7. Django Admin Panel:
    https://subjects-measurement-gym-thousands.trycloudflare.com/admin/
 ============================================================

@@ -18,7 +18,10 @@ import {
 } from 'lucide-react';
 import { PRESET_SCENARIOS } from './data/presets';
 
-const API_BASE_URL = window.location.port === '5173' ? 'http://127.0.0.1:8000' : '';
+const BACKEND_TUNNEL_URL = 'https://subjects-measurement-gym-thousands.trycloudflare.com';
+const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://127.0.0.1:8000'
+  : BACKEND_TUNNEL_URL;
 
 export default function App() {
   // Preset selector
