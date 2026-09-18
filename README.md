@@ -250,3 +250,6 @@ BUP_CSE_Fest_Hackathon/
 ---
 
 *BUP CSE FEST 2026 — Smart Campus Energy Optimization Challenge*
+
+
+Docker image - > https://hub.docker.com/r/sohag987/gridwise-backend

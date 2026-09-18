@@ -4,3 +4,4 @@ ortools>=9.8.0
 openai>=1.0.0
 gunicorn>=21.0.0
 python-dotenv>=1.0.0
+django-cors-headers>=4.3.0
