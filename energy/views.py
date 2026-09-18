@@ -1,44 +1,60 @@
-from rest_framework.views import APIView
+from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.permissions import AllowAny
 
-from .serializers import ScenarioRequestSerializer, ScenarioResponseSerializer
+from .models import BatteryConfig, OptimizationScenario
+from .serializers import (
+    ScenarioRequestSerializer,
+    ScenarioResponseSerializer,
+    BatteryConfigSerializer,
+    OptimizationScenarioSerializer,
+)
 from .services.llm_interpreter import interpret_operator_notes
 from .services.guardrail import validate_directive_interpretation
 from .services.optimizer import optimize_schedule
 from .services.replay_validator import replay_validate_schedule
 
 
-class HealthView(APIView):
+class HealthView(generics.GenericAPIView):
+    """
+    Public Health & Liveness Probe endpoint.
+    GET /health -> {"status": "ok"}
+    """
     permission_classes = [AllowAny]
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         return Response({"status": "ok"}, status=status.HTTP_200_OK)
 
 
-class OptimizeEnergyView(APIView):
+class OptimizeEnergyView(generics.GenericAPIView):
+    """
+    Public 24-Hour Campus Energy Optimization Pipeline.
+    POST /optimize-energy
+    
+    GenericAPIView adhering to the ScenarioRequestSerializer and ScenarioResponseSerializer schema.
+    Pure in-memory LP optimization pipeline; no database writes are required.
+    """
     permission_classes = [AllowAny]
+    serializer_class = ScenarioRequestSerializer
 
-    def post(self, request):
-        # 1. DRF Schema Validation
-        serializer = ScenarioRequestSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    def post(self, request, *args, **kwargs):
+        # 1. DRF Generic Schema Validation
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
+
         scenario_id = validated_data['scenario_id']
         notes = validated_data['operator_notes']
         hours = validated_data['hours']
         battery = validated_data['battery']
 
-        # 2. LLM Interpretation (OpenAI / Deterministic Fallback)
+        # 2. LLM Interpretation (OpenAI / High-Fidelity Fallback)
         raw_interpretations = interpret_operator_notes(notes, battery)
 
         # 3. Deterministic Guardrail Check
         directives = validate_directive_interpretation(raw_interpretations, len(notes), battery)
 
-        # 4. LP Math Optimization
+        # 4. LP Math Optimization (Google OR-Tools GLOP)
         optimization_result = optimize_schedule(hours, battery, directives)
 
         # 5. Independent Replay Validation
@@ -62,3 +78,46 @@ class OptimizeEnergyView(APIView):
         response_serializer = ScenarioResponseSerializer(data=response_payload)
         response_serializer.is_valid(raise_exception=True)
         return Response(response_serializer.data, status=status.HTTP_200_OK)
+
+
+class BatteryConfigListCreateView(generics.ListCreateAPIView):
+    """
+    Public Generic List & Create API view for Battery Configurations.
+    GET /api/battery-configs/
+    POST /api/battery-configs/
+    """
+    queryset = BatteryConfig.objects.all()
+    serializer_class = BatteryConfigSerializer
+    permission_classes = [AllowAny]
+
+
+class BatteryConfigDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Public Generic Retrieve, Update & Destroy API view for a Battery Configuration.
+    GET /api/battery-configs/<int:pk>/
+    PUT / PATCH /api/battery-configs/<int:pk>/
+    DELETE /api/battery-configs/<int:pk>/
+    """
+    queryset = BatteryConfig.objects.all()
+    serializer_class = BatteryConfigSerializer
+    permission_classes = [AllowAny]
+
+
+class OptimizationScenarioListView(generics.ListAPIView):
+    """
+    Public Generic List API view for past optimization scenario audit records.
+    GET /api/scenarios/
+    """
+    queryset = OptimizationScenario.objects.all()
+    serializer_class = OptimizationScenarioSerializer
+    permission_classes = [AllowAny]
+
+
+class OptimizationScenarioDetailView(generics.RetrieveAPIView):
+    """
+    Public Generic Retrieve API view for a specific optimization scenario run.
+    GET /api/scenarios/<int:pk>/
+    """
+    queryset = OptimizationScenario.objects.all()
+    serializer_class = OptimizationScenarioSerializer
+    permission_classes = [AllowAny]

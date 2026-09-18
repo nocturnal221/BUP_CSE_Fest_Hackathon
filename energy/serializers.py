@@ -1,5 +1,10 @@
 from rest_framework import serializers
+from .models import BatteryConfig, OptimizationScenario, HourlyPlanRecord, DirectiveRecord
 
+
+# ==========================================
+# In-Memory Optimization Pipeline Serializers
+# ==========================================
 
 class HourInputSerializer(serializers.Serializer):
     hour = serializers.IntegerField(min_value=0, max_value=23)
@@ -78,3 +83,34 @@ class ScenarioResponseSerializer(serializers.Serializer):
     total_cost_bdt = serializers.FloatField()
     peak_grid_kwh = serializers.FloatField()
     plan_summary = serializers.CharField()
+
+
+# ==========================================
+# DRF ModelSerializers for ModelViewSets
+# ==========================================
+
+class BatteryConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BatteryConfig
+        fields = '__all__'
+
+
+class HourlyPlanRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HourlyPlanRecord
+        fields = '__all__'
+
+
+class DirectiveRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DirectiveRecord
+        fields = '__all__'
+
+
+class OptimizationScenarioSerializer(serializers.ModelSerializer):
+    hourly_plans = HourlyPlanRecordSerializer(many=True, read_only=True)
+    directives = DirectiveRecordSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = OptimizationScenario
+        fields = '__all__'

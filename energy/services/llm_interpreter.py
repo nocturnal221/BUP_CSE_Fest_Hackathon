@@ -6,6 +6,7 @@ from typing import List, Dict, Any
 
 OPENAI_AVAILABLE = False
 try:
+    # pyrefly: ignore [missing-import]
     import openai
     OPENAI_AVAILABLE = True
 except ImportError:
