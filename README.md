@@ -253,3 +253,27 @@ BUP_CSE_Fest_Hackathon/
 
 
 Docker image - > https://hub.docker.com/r/sohag987/gridwise-backend
+
+============================================================
+GridWise — Smart Campus Energy Optimization System
+BUP CSE FEST Hackathon 2026
+============================================================
+
+1. Docker Hub Image Link:
+   https://hub.docker.com/r/sohag987/gridwise-backend
+
+2. Docker Run Command (For Judges):
+   docker run -d -p 8000:8000 sohag987/gridwise-backend:latest
+
+3. Live Public API Base URL (Cloudflare Tunnel):
+   https://subjects-measurement-gym-thousands.trycloudflare.com
+
+4. Liveness Probe:
+   GET https://subjects-measurement-gym-thousands.trycloudflare.com/health
+
+5. Optimization Pipeline:
+   POST https://subjects-measurement-gym-thousands.trycloudflare.com/optimize-energy
+
+6. Django Admin Panel:
+   https://subjects-measurement-gym-thousands.trycloudflare.com/admin/
+============================================================
